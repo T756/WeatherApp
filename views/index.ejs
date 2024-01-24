@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Weather App</title>
+    <link rel="stylesheet" type="text/css" href="/style.css" />
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.14.0/css/all.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+          integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+          crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+            integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
+            crossorigin=""></script>
+</head>
+<body>
+<div class="container">
+    <form action="/weather" method="get" >
+        <input type="text" name="city" id="search" onfocus="this.placeholder=''" onblur="this.placeholder='Enter city name'" placeholder="Enter city name" style="font-weight: bold;" />
+        <button type="submit">Get Weather</button>
+        <button type="button" id="search-button">Get Map</button>
+    </form>
+    <% if (error) { %>
+        <p class="error"><%= error %></p>
+    <% } else if (currentWeather) { %>
+        <div class="card">
+            <h2 style="margin-bottom: 0; font-size: 36px;">City: <%= currentWeather.name %></h2>
+            <p style="margin-top: 5px; font-size: 14px; color: #222; font-weight: bold";><%= getLocalTime(currentWeather.dt, currentWeather.timezone) %></p>
+            <img src="http://openweathermap.org/img/w/<%= currentWeather.weather[0].icon %>.png" alt="Current Weather Icon" style="width: 150px; height: 150px; " />
+            <p style="font-size: 66px; font-weight: bold; margin-top: 0; margin-bottom: 0;"><%= currentWeather.main.temp %>&deg;</p>
+            <p class="description" ><%= currentWeather.weather[0].description %></p>
+        </div>
+        <div class="card2">
+            <table>
+                <tr>
+                    <td><p><i class="fas fa-thermometer-three-quarters"></i><%= currentWeather.main.feels_like%>&deg;C</p></td>
+                    <td><p><i class="fas fa-tint"></i><%= currentWeather.main.humidity %>%</p></td>
+                </tr>
+                <tr>
+                    <td><p><i class="fas fa-tachometer-alt"></i><%= currentWeather.main.pressure %> hPa</p></td>
+                    <td><p><i class="fas fa-wind"></i><%= currentWeather.wind.speed %> m/s</p></td>
+                </tr>
+                <tr>
+                    <td><p></i><%= currentWeather.sys.country %></p></td>
+                    <td><p><i class="fas fa-map-marker-alt"></i><%= currentWeather.coord.lat %>, <%= currentWeather.coord.lon %></p></td>
+                </tr>
+            </table>
+            <% if (currentWeather.rain && (currentWeather.rain["1h"] || currentWeather.rain["3h"])) { %>
+                <% if (currentWeather.rain["1h"]) { %>
+                    <p><i class="fas fa-cloud-showers-heavy"></i> Rain Volume (last 1 hour): <%= currentWeather.rain["1h"] %> mm</p>
+                <% } else if (currentWeather.rain["3h"]) { %>
+                    <p><i class="fas fa-cloud-showers-heavy"></i> Rain Volume (last 3 hours): <%= currentWeather.rain["3h"] %> mm</p>
+                <% } %>
+            <% } else { %>
+                <p>No rain data available</p>
+            <% } %>
+            <% function getLocalTime(utcTimestamp, timezoneOffset) { %>
+                <% const utcTime = new Date(utcTimestamp * 1000); %>
+                <% const localTime = new Date(utcTime.getTime() + timezoneOffset * 1000); %>
+                <%= localTime.toUTCString() %>
+            <% } %>
+        </div>
+    <% } %>
+    <!-- Add this section to your EJS template -->
+
+    <% if (extendedForecast) { %>
+        <div class="extended-forecast-container">
+            <h2>Extended Weather Forecast (14-day outlook)</h2>
+            <div class="extended-forecast">
+                <% let currentDate = new Date(); %>
+            <% extendedForecast.slice(0, 14).forEach(day => { %>
+                <div class="card1">
+                    <p><img src="http://openweathermap.org/img/w/<%= day.weather[0].icon %>.png" alt="Weather Icon" /></p>
+                    <p><%= currentDate.toDateString() %></p>
+                    <table>
+                        <tr>
+                            <td><p>
+                                    <i class="fas fa-arrow-up"></i><%=day.main.temp_max %>&deg;C</p></td>
+                            <td><p>
+                                    <i class="fas fa-arrow-down"></i><%=day.main.temp_min %>&deg;C</p></td>
+                        </tr>
+                    </table>
+
+
+                    <p><i class="fas fa-wind"></i>
+                        <%= day.wind.speed %> m/s</p>
+                    <p><i class="fas fa-compass"></i>
+                        <%= day.wind.deg %> degrees </p>
+                    <% if (day.sys && day.sys.sunrise && day.sys.sunset) { %>
+                        <p>Sunrise Time: <%= new Date(day.sys.sunrise * 1000).toLocaleTimeString() %></p>
+                        <p>Sunset Time: <%= new Date(day.sys.sunset * 1000).toLocaleTimeString() %></p>
+                    <% } else { %>
+                        <p>Sunrise and Sunset data not available</p>
+                    <% } %>
+                    </div>
+                    <% currentDate.setDate(currentDate.getDate() + 1); %>
+            <% }); %>
+        </div>
+        </div>
+    <% } %>
+
+</div>
+
+<div id="map-container" style="height: 75vh; margin-top: 20px;"></div>
+<script>
+    const searchInput = document.getElementById('search');
+    const mapContainer = document.getElementById('map-container');
+    let currentMarker;
+
+
+    const map = L.map(mapContainer).setView([0, 0], 10);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    if ('geolocation' in navigator) {
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+
+                const userLocation = [position.coords.latitude, position.coords.longitude];
+                map.setView(userLocation, 13);
+                userMarker = L.marker(userLocation).addTo(map)
+                    .bindPopup('Your Location').openPopup();
+            },
+            (error) => {
+                console.error('Error getting user location:', error.message);
+            }
+        );
+
+    } else {
+        console.error('Geolocation is not supported by your browser');
+    }
+
+    document.getElementById('search-button').addEventListener('click', () => {
+        const query = searchInput.value;
+        fetch(`https://nominatim.openstreetmap.org/search?format=json&polygon=1&addressdetails=1&q=${query}`)
+            .then(result => result.json())
+            .then(parsedResult => {
+                displayCity(parsedResult);
+            });
+    });
+
+    function displayCity(parsedResult) {
+        if (currentMarker) {
+            map.removeLayer(currentMarker);
+        }
+        if(userMarker) {
+            map.removeLayer(userMarker);
+        }
+
+        if (parsedResult.length > 0) {
+            const result = parsedResult[0];
+            const position = new L.LatLng(result.lat, result.lon);
+            currentMarker = new L.marker(position).addTo(map);
+
+            currentMarker.bindPopup(result.display_name).openPopup();
+
+            map.flyTo(position, 10);
+
+        }
+    }
+
+</script>
+</body>
+</html>

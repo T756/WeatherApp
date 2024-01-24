@@ -1,0 +1,175 @@
+body {
+
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(to bottom, #1B88BF, #aed6f1, #ffffff);
+}
+
+
+.container {
+    margin: 0 auto;
+    text-align: center;
+}
+
+h1 {
+    margin-top: 30px;
+}
+
+form {
+    margin-top: 30px;
+    display: inline-block;
+    text-align: left;
+}
+
+input[type="text"] {
+    padding: 10px;
+    font-size: 16px;
+    border-radius: 5px;
+    border: white;
+    background: rgba(255, 255, 255, 0.5); /* Semi-transparent white background */
+    color: #000; /* Text color */
+    outline: none; /* Remove highlight on focus */
+}
+
+input[type="text"]::placeholder {
+    font-weight: bold; /* Bold placeholder */
+}
+
+button[type="submit"] {
+    padding: 10px 20px;
+    background-color: #222;
+    color: lightblue;
+    border-radius: 5px;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+    margin-left: 10px;
+}
+button[type="button"] {
+    padding: 10px 20px;
+    background-color: #222;
+    color: lightblue;
+    border-radius: 5px;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+    margin-left: 10px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+table td {
+    text-align: center;
+}
+
+.card p.description {
+    text-transform: capitalize;
+    font-size: 32px;
+    font-weight: bold;
+    margin-top: 0;
+}
+
+table p {
+    font-weight: bold;
+    font-size: 18px;
+}
+
+table i {
+    margin-right: 5px;
+}
+
+
+.card {
+    background-color: rgba(255, 255, 255, 1); /* Adjust the alpha (fourth parameter) for transparency */
+    max-width: 400px;
+    background: #1B88BF;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px 0 rgba(10, 10, 10, 0.5);
+    margin: 30px auto;
+    padding: 30px;
+    text-align: center;
+}
+
+.card2 {
+    background-color: rgba(255, 255, 255, 1); /* Adjust the alpha (fourth parameter) for transparency */
+    max-width: 400px;
+    background: linear-gradient(to bottom, #1B88BF, #aed6f1);
+    border-radius: 15px;
+    box-shadow: 0 4px 8px 0 rgba(10, 10, 10, 0.5);
+    margin: 30px auto;
+    padding: 30px;
+    text-align: center;
+}
+
+.card p{
+    font-weight: bold;
+}
+
+.extended-forecast {
+    display: flex;
+    overflow-x: auto;
+    margin-top: 20px;
+    width: 100%;
+    gap: 10px;
+    justify-content: flex-start;
+
+}
+
+.card img {
+    height: 50px;
+    width: 50px;
+}
+
+.card1 {
+    border: 1px solid #ddd;
+    min-width: 200px;
+    background: linear-gradient(to bottom, #aed6f1, lightcyan);
+    border-radius: 15px;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+    margin: 30px auto;
+    padding: 30px;
+    justify-content: center;
+    font-weight: bold;
+}
+
+.card2 {
+    font-weight: bold;
+}
+
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: darkgrey;
+    border-radius: 7px;
+    height: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: #222;
+}
+
+
+.loading {
+    font-size: 18px;
+    margin: 30px 0;
+}
+
+.error {
+    color: red;
+    font-size: 18px;
+    margin: 30px 0;
+}
+
+#map {
+    height: 360px;
+
+}
